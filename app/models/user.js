@@ -1,6 +1,4 @@
 const mongoose = require('mongoose')
-const Post = mongoose.model("Post")
-const Schema = mongoose.Schema
 
 const UserSchema = new mongoose.Schema({
   username: {
@@ -27,7 +25,7 @@ const UserSchema = new mongoose.Schema({
   },
   posts: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Post"
+    ref: 'Post'
   },
   token: String
 }, {
