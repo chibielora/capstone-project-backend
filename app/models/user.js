@@ -23,8 +23,15 @@ const UserSchema = new mongoose.Schema({
   following: {
     type: Schema.ObjectId, ref: 'user'
   },
-  posts: {
+  profileImgURL:{
+    type: String
+  },
+  numposts: {
     type: Number
+  },
+  posts: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Post"
   },
   token: String
 }, {
@@ -54,6 +61,12 @@ UserSchema.statics = {
       .countDocuments()
       .exec(cb);
   },
+  load: function(options, cb) {
+    options.select = options.select || "name username";
+    return this.findOne(options.criteria)
+      .select(options.select)
+      .exec(cb);
+  },  
   list: function (options) {
     const criteria = options.criteria || {};
     return this.find(criteria)
