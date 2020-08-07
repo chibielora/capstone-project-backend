@@ -8,22 +8,15 @@ const Post = require('../models/titter')
 
 const customErrors = require('../../lib/custom_errors')
 const handle404 = customErrors.handle404
-
 const requireOwnership = customErrors.requireOwnership
-
 const removeBlanks = require('../../lib/remove_blank_fields')
-// passing this as a second argument to `router.<verb>` will make it
-// so that a token MUST be passed for that route to be available
-// it will also set `req.user`
 const requireToken = passport.authenticate('bearer', { session: false })
-
-// instantiate a router (mini app that only handles routes)
 const router = express.Router()
 
-// INDEX
-// GET /examples
-router.get('/posts', requireToken, (req, res, next) => {
+// INDEX OF POSTS
+router.get('/', requireToken, (req, res, next) => {
   Post.find()
+    .sort({ createdAt: -1})
     .then(posts => {
       // `examples` will be an array of Mongoose documents
       // we want to convert each one to a POJO, so we use `.map` to
@@ -36,9 +29,28 @@ router.get('/posts', requireToken, (req, res, next) => {
     .catch(next)
 })
 
-// SHOW
-// GET /examples/5a7db6c74d55bc51bdf39793
-router.get('/posts/:id', requireToken, (req, res, next) => {
+// INDEX OF WHO USER IS FOLLOWING
+router.get('/following', requireToken, (req, res, next) => {
+  Post.find({
+    'user.id': { following: req.user.following}  //Come back to this later
+  })
+    .sort({ createdAt: -1 })
+    .then(posts => {
+      // `examples` will be an array of Mongoose documents
+      // we want to convert each one to a POJO, so we use `.map` to
+      // apply `.toObject` to each one
+      return posts.map(post => post.toObject())
+    })
+    // respond with status 200 and JSON of the examples
+    .then(posts => res.status(200).json({
+      posts: posts
+    }))
+    // if an error occurs, pass it to the handler
+    .catch(next)
+})
+
+// SHOW POSTS BY ID
+router.get('/:id', requireToken, (req, res, next) => {
   // req.params.id will be set based on the `:id` in the route
   Post.findById(req.params.id)
     .then(handle404)
@@ -48,13 +60,32 @@ router.get('/posts/:id', requireToken, (req, res, next) => {
     .catch(next)
 })
 
+// SHOW USER BY ID
+router.get('/:userId', requireToken, (req, res, next) => {
+  // req.params.id will be set based on the `:id` in the route
+  Post.find({'user.id': req.params.id})
+    .then(handle404)
+    // if `findById` is succesful, respond with 200 and "example" JSON
+    .then(post => res.status(200).json({
+      post: post.toObject()
+    }))
+    // if an error occurs, pass it to the handler
+    .catch(next)
+})
+
 // CREATE
 // POST /examples
-router.post('/posts', requireToken, (req, res, next) => {
+router.post('/add', requireToken, (req, res, next) => {
   // set owner of new example to be current user
   req.body.post.owner = req.user.id
-
-  Post.create(req.body.post)
+  const message = req.body.post.trim()
+  const newPost = new Post({
+    user : {
+      id: req.user.id,
+      login: req.user.login
+    }, message
+  })
+  newPost.save()
     // respond to succesful `create` with status 201 and JSON of new "example"
     .then(post => {
       res.status(201).json({ post: post.toObject() })
@@ -67,7 +98,7 @@ router.post('/posts', requireToken, (req, res, next) => {
 
 // UPDATE
 // PATCH /examples/5a7db6c74d55bc51bdf39793
-router.patch('/posts/:id', requireToken, removeBlanks, (req, res, next) => {
+router.patch('/:id', requireToken, removeBlanks, (req, res, next) => {
   // if the client attempts to change the `owner` property by including a new
   // owner, prevent that by deleting that key/value pair
   delete req.body.post.owner
@@ -90,7 +121,7 @@ router.patch('/posts/:id', requireToken, removeBlanks, (req, res, next) => {
 
 // DESTROY
 // DELETE /examples/5a7db6c74d55bc51bdf39793
-router.delete('/posts/:id', requireToken, (req, res, next) => {
+router.delete('/:id', requireToken, (req, res, next) => {
   Post.findById(req.params.id)
     .then(handle404)
     .then(post => {

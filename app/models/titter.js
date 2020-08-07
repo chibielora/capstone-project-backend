@@ -13,13 +13,14 @@ const PostSchema = new mongoose.Schema( {
   },
   user: { 
     type: Schema.ObjectId, 
-    ref: "User" 
+    ref: "User",
+    required: true
   },
-  comments: [{
+  messages: [{
     body: { type: String, default: "", maxlength: 300 },
     user: { type: Schema.ObjectId, ref: "User" },
-    commenterName: { type: String, default: "" },
-    commenterPicture: { type: String, default: "" },
+    // commenterName: { type: String, default: "" },
+    // commenterPicture: { type: String, default: "" },
     createdAt: { type: Date, default: Date.now }
   }],
   tags: { 
@@ -42,70 +43,70 @@ const PostSchema = new mongoose.Schema( {
   { usePushEach: true }
 )
 
-PostSchema.pre("save", function (next) {
-  if (this.favorites) {
-    this.favoritesCount = this.favorites.length
-  }
-  if (this.favorites) {
-    this.myfavorites = this.favorites
-  }
-  next()
-})
+// PostSchema.pre("save", function (next) {
+//   if (this.favorites) {
+//     this.favoritesCount = this.favorites.length
+//   }
+//   if (this.favorites) {
+//     this.myfavorites = this.favorites
+//   }
+//   next()
+// })
 
 
 
-PostSchema.statics = {
-  // Load posts
-  load: function (id, callback) {
-    this.findOne({
-        _id: id
-      })
-      .populate("user", "name username")
-      .populate("comments.user")
-      .exec(callback)
-  },
-  // List posts
-  list: function (options) {
-    const criteria = options.criteria || {}
-    return this.find(criteria)
-      .populate("user", "name username")
-      .sort({
-        createdAt: -1
-      })
-      .limit(options.perPage)
-      .skip(options.perPage * options.page)
-  },
-  // List posts
-  limitedList: function (options) {
-    const criteria = options.criteria || {}
-    return this.find(criteria)
-      .populate("user", "name username")
-      .sort({
-        createdAt: -1
-      })
-      .limit(options.perPage)
-      .skip(options.perPage * options.page)
-  },
-  // User Posts
-  userPosts: function (id, callback) {
-    this.find({
-        user: ObjectId(id)
-      })
-      .toArray()
-      .exec(callback)
-  },
+// PostSchema.statics = {
+//   // Load posts
+//   load: function (id, callback) {
+//     this.findOne({
+//         _id: id
+//       })
+//       .populate("user", "name username")
+//       .populate("comments.user")
+//       .exec(callback)
+//   },
+//   // List posts
+//   list: function (options) {
+//     const criteria = options.criteria || {}
+//     return this.find(criteria)
+//       .populate("user", "name username")
+//       .sort({
+//         createdAt: -1
+//       })
+//       .limit(options.perPage)
+//       .skip(options.perPage * options.page)
+//   },
+//   // List posts
+//   limitedList: function (options) {
+//     const criteria = options.criteria || {}
+//     return this.find(criteria)
+//       .populate("user", "name username")
+//       .sort({
+//         createdAt: -1
+//       })
+//       .limit(options.perPage)
+//       .skip(options.perPage * options.page)
+//   },
+//   // User Posts
+//   userPosts: function (id, callback) {
+//     this.find({
+//         user: ObjectId(id)
+//       })
+//       .toArray()
+//       .exec(callback)
+//   },
 
-  countUserPosts: function (id, callback) {
-    return this.find({
-        user: id
-      })
-      .countDocuments()
-      .exec(callback)
-  },
+//   countUserPosts: function (id, callback) {
+//     return this.find({
+//         user: id
+//       })
+//       .countDocuments()
+//       .exec(callback)
+//   },
 
-  countPosts: function (criteria) {
-    return this.find(criteria).countDocuments()
-  }
-}
+//   countPosts: function (criteria) {
+//     return this.find(criteria).countDocuments()
+//   }
+// }
 
 module.exports = mongoose.model('Post', PostSchema)

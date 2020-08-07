@@ -8,21 +8,11 @@ const bcrypt = require('bcrypt')
 
 // see above for explanation of "salting", 10 rounds is recommended
 const bcryptSaltRounds = 10
-
-// pull in error types and the logic to handle them and set status codes
 const errors = require('../../lib/custom_errors')
-
 const BadParamsError = errors.BadParamsError
 const BadCredentialsError = errors.BadCredentialsError
-
 const User = require('../models/user')
-
-// passing this as a second argument to `router.<verb>` will make it
-// so that a token MUST be passed for that route to be available
-// it will also set `res.user`
 const requireToken = passport.authenticate('bearer', { session: false })
-
-// instantiate a router (mini app that only handles routes)
 const router = express.Router()
 
 // SIGN UP
@@ -44,6 +34,7 @@ router.post('/sign-up', (req, res, next) => {
     .then(hash => {
       // return necessary params to create a user
       return {
+        username: req.body.credentials.username,
         email: req.body.credentials.email,
         hashedPassword: hash
       }
@@ -97,6 +88,58 @@ router.post('/sign-in', (req, res, next) => {
     .catch(next)
 })
 
+// MAIN PAGE
+router.get('/', requireToken,(req, res, next) => {
+  res.json({
+  _id: req.user._id,
+  email: req.user.email,
+  username: req.user.username,
+  followers: req.user.followers,
+  following: req.user.following
+  })
+})
+
+// FOLLOW
+router.post('/follow', requireToken, (req, res, next) => {
+  User.findOneAndUpdate({ _id: req.user.id }, 
+  { push: { following: req.body.userId }},
+  { new: true })
+  .then(user => {
+  User.findOneAndUpdate({ _id: req.body.userId
+    }, {
+    push: { followers: req.user.id }
+    }, { new: true})
+    .then(user => res.json({ userId: req.body.userId }))
+    .catch(next)
+  })
+  .catch(next)
+})
+
+// UNFOLLOW
+router.post('/unfollow', requireToken, (req, res, next) => {
+  User.findOneAndUpdate({ _id: req.user.id}, 
+    { pull: { following: req.body.userId } }, 
+    { new: true })
+  .then(user => {
+  User.findOneAndUpdate({ _id: req.body.userId }, 
+    { pull: { followers: req.user.id } }, 
+    { new: true })
+    .then(user => res.json({ userId: req.body.userId }))
+    .catch(next)
+  })
+  .catch(next)
+})
+
+// SEARCH USERS
+router.post('/search', requireToken, (req, res, next) => {
+		User.findOne({ or: [
+      { email: req.body.text },
+			{ username: req.body.text } ]
+		})
+		.then(user => res.json({ userId: user._id }))
+		.catch(next)
+})
+    
 // CHANGE password
 // PATCH /change-password
 router.patch('/change-password', requireToken, (req, res, next) => {
