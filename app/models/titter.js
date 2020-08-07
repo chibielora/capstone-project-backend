@@ -1,5 +1,4 @@
 const mongoose = require('mongoose')
-const Schema = mongoose.Schema
 
 //  Getters and Setters
 const setTags = tags => tags.map(t => t.toLowerCase())
@@ -42,70 +41,4 @@ const PostSchema = new mongoose.Schema( {
   { usePushEach: true }
 )
 
-PostSchema.pre("save", function (next) {
-  if (this.favorites) {
-    this.favoritesCount = this.favorites.length
-  }
-  if (this.favorites) {
-    this.myfavorites = this.favorites
-  }
-  next()
-})
-
-
-
-PostSchema.statics = {
-  // Load posts
-  load: function (id, callback) {
-    this.findOne({
-        _id: id
-      })
-      .populate("user", "name username")
-      .populate("comments.user")
-      .exec(callback)
-  },
-  // List posts
-  list: function (options) {
-    const criteria = options.criteria || {}
-    return this.find(criteria)
-      .populate("user", "name username")
-      .sort({
-        createdAt: -1
-      })
-      .limit(options.perPage)
-      .skip(options.perPage * options.page)
-  },
-  // List posts
-  limitedList: function (options) {
-    const criteria = options.criteria || {}
-    return this.find(criteria)
-      .populate("user", "name username")
-      .sort({
-        createdAt: -1
-      })
-      .limit(options.perPage)
-      .skip(options.perPage * options.page)
-  },
-  // User Posts
-  userPosts: function (id, callback) {
-    this.find({
-        user: ObjectId(id)
-      })
-      .toArray()
-      .exec(callback)
-  },
-
-  countUserPosts: function (id, callback) {
-    return this.find({
-        user: id
-      })
-      .countDocuments()
-      .exec(callback)
-  },
-
-  countPosts: function (criteria) {
-    return this.find(criteria).countDocuments()
-  }
-}
-
-module.exports = mongoose.model('Post', PostSchema)
+module.exports = mongoose.model('Post', exampleSchema)
