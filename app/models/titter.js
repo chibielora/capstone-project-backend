@@ -42,4 +42,4 @@ const PostSchema = new mongoose.Schema( {
   { usePushEach: true }
 )
 
-module.exports = mongoose.model('Post', exampleSchema)
+module.exports = mongoose.model('Post', PostSchema)
