@@ -17,12 +17,12 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  followers: [{
-    type: Schema.ObjectId, ref: 'user'
-  }],
-  following: {
-    type: Schema.ObjectId, ref: 'user'
-  },
+  followers: [
+  // {type: Schema.ObjectId, ref: 'user'}
+  ],
+  following: [
+  // {type: Schema.ObjectId, ref: 'user'}
+  ],
   profileImgURL:{
     type: String
   },
@@ -46,37 +46,37 @@ const UserSchema = new mongoose.Schema({
   }
 })
 
-UserSchema.statics = {
-  addfollow: function (id, cb) {
-    this.findOne({
-        _id: id
-      })
-      .populate("followers")
-      .exec(cb);
-  },
-  countUserPosts: function (id, cb) {
-    return Post.find({
-        user: id
-      })
-      .countDocuments()
-      .exec(cb);
-  },
-  load: function(options, cb) {
-    options.select = options.select || "name username";
-    return this.findOne(options.criteria)
-      .select(options.select)
-      .exec(cb);
-  },  
-  list: function (options) {
-    const criteria = options.criteria || {};
-    return this.find(criteria)
-      .populate("user", "name username")
-      .limit(options.perPage)
-      .skip(options.perPage * options.page);
-  },
-  countTotalUsers: function () {
-    return this.find({}).countDocuments();
-  }
-};
+// UserSchema.statics = {
+//   addfollow: function (id, cb) {
+//     this.findOne({
+//         _id: id
+//       })
+//       .populate("followers")
+//       .exec(cb);
+//   },
+//   countUserPosts: function (id, cb) {
+//     return Post.find({
+//         user: id
+//       })
+//       .countDocuments()
+//       .exec(cb);
+//   },
+//   load: function(options, cb) {
+//     options.select = options.select || "name username";
+//     return this.findOne(options.criteria)
+//       .select(options.select)
+//       .exec(cb);
+//   },  
+//   list: function (options) {
+//     const criteria = options.criteria || {};
+//     return this.find(criteria)
+//       .populate("user", "name username")
+//       .limit(options.perPage)
+//       .skip(options.perPage * options.page);
+//   },
+//   countTotalUsers: function () {
+//     return this.find({}).countDocuments();
+//   }
+// };
 
 module.exports = mongoose.model('User', UserSchema)

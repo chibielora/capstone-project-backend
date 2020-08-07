@@ -12,13 +12,14 @@ const PostSchema = new mongoose.Schema( {
   },
   user: { 
     type: Schema.ObjectId, 
-    ref: "User" 
+    ref: "User",
+    required: true
   },
-  comments: [{
+  messages: [{
     body: { type: String, default: "", maxlength: 300 },
     user: { type: Schema.ObjectId, ref: "User" },
-    commenterName: { type: String, default: "" },
-    commenterPicture: { type: String, default: "" },
+    // commenterName: { type: String, default: "" },
+    // commenterPicture: { type: String, default: "" },
     createdAt: { type: Date, default: Date.now }
   }],
   tags: { 
