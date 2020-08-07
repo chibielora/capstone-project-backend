@@ -18,4 +18,4 @@ const exampleSchema = new mongoose.Schema({
   timestamps: true
 })
 
-module.exports = mongoose.model('Example', exampleSchema)
+module.exports = mongoose.model('Post', exampleSchema)
