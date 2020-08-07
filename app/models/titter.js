@@ -8,14 +8,14 @@ const PostSchema = new mongoose.Schema( {
     type: String, 
     default: "", 
     trim: true, 
-    maxlength: 280 
+    maxlength: 300 
   },
   user: { 
     type: Schema.ObjectId, 
     ref: "User" 
   },
   comments: [{
-    body: { type: String, default: "", maxlength: 280 },
+    body: { type: String, default: "", maxlength: 300 },
     user: { type: Schema.ObjectId, ref: "User" },
     commenterName: { type: String, default: "" },
     commenterPicture: { type: String, default: "" },
