@@ -1,18 +1,16 @@
 #!/bin/bash
 
 API="http://localhost:4741"
-URL_PATH="/sign-up"
+URL_PATH="/search"
 
 curl "${API}${URL_PATH}" \
   --include \
   --request POST \
   --header "Content-Type: application/json" \
   --data '{
-    "credentials": {
+    "body": {
       "username": "'"${USERNAME}"'",
       "email": "'"${EMAIL}"'",
-      "password": "'"${PASSWORD}"'",
-      "password_confirmation": "'"${PASSWORD}"'"
     }
   }'
 
