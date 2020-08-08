@@ -1,9 +1,10 @@
 #!/bin/sh
 
 API="http://localhost:4741"
-URL_PATH="/post"
+URL_PATH="/following/:userId"
 
-curl "${API}${URL_PATH}" \
+# idk if curl should be ${USERID}
+curl "${API}${URL_PATH}/${ID}" \
   --include \
   --request GET \
   --header "Authorization: Bearer ${TOKEN}"

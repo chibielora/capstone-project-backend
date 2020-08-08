@@ -15,13 +15,13 @@ const PostSchema = new mongoose.Schema( {
     ref: "User",
     required: true
   },
-  messages: [{
-    body: { type: String, default: "", maxlength: 300 },
-    user: { type: Schema.ObjectId, ref: "User" },
-    // commenterName: { type: String, default: "" },
-    // commenterPicture: { type: String, default: "" },
-    createdAt: { type: Date, default: Date.now }
-  }],
+  // messages: [{
+  //   body: { type: String, default: "", maxlength: 300 },
+  //   user: { type: Schema.ObjectId, ref: "User" },
+  //   commenterName: { type: String, default: "" },
+  //   commenterPicture: { type: String, default: "" },
+  //   createdAt: { type: Date, default: Date.now }
+  // }],
   tags: { 
   type: [String], 
   set: setTags
