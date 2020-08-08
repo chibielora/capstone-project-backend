@@ -1,5 +1,5 @@
 const mongoose = require('mongoose')
-
+const Schema = mongoose.Schema
 //  Getters and Setters
 const setTags = tags => tags.map(t => t.toLowerCase())
 
