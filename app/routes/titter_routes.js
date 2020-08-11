@@ -16,6 +16,7 @@ const router = express.Router()
 // INDEX OF POSTS
 router.get('/posts', requireToken, (req, res, next) => {
   Post.find()
+    .populate('user', 'username')
     .sort({ createdAt: -1})
     .then(posts => {
       // `examples` will be an array of Mongoose documents
@@ -62,7 +63,7 @@ router.get('/posts/following', requireToken, (req, res, next) => {
 })
 
 // SHOW USER BY ID
-router.get('/users/:userId', requireToken, (req, res, next) => {
+router.get('/users/:id', requireToken, (req, res, next) => {
   // req.params.id will be set based on the `:id` in the route
   Post.find({'user.id': req.params.id})
     .then(handle404)
@@ -78,6 +79,7 @@ router.get('/users/:userId', requireToken, (req, res, next) => {
 // POST /examples
 router.post('/posts', requireToken, (req, res, next) => {
   const message = req.body.post.message.trim()
+  console.log(message)
   const newPost = new Post({
     body: message,
     user: req.user.id 
@@ -85,7 +87,11 @@ router.post('/posts', requireToken, (req, res, next) => {
   newPost.save()
     // respond to succesful `create` with status 201 and JSON of new "example"
     .then(post => {
-      res.status(201).json({ post: post.toObject() })
+      Post.findById(post._id)
+        .populate('user', 'username')
+        .then(post => {
+          res.status(201).json({ post: post.toObject() })
+        })
     })
     // if an error occurs, pass it off to our error handler
     // the error handler needs the error message and the `res` object so that it

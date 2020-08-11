@@ -4,24 +4,17 @@ const Schema = mongoose.Schema
 const setTags = tags => tags.map(t => t.toLowerCase())
 
 const PostSchema = new mongoose.Schema( {
-  // body: {
-  //   type: String, 
-  //   default: "", 
-  //   trim: true, 
-  //   maxlength: 300 
-  // },
-  // user: { 
-  //   type: Schema.ObjectId, 
-  //   ref: "User",
-  //   required: true
-  // },
-  body: [{
-    message: { type: String, default: "", trim: true, maxlength: 300 },
-    user: { type: Schema.ObjectId, ref: "User" },
-    commenterName: { type: String, default: "" },
-    commenterPicture: { type: String, default: "" },
-    createdAt: { type: Date, default: Date.now }
-  }],
+  body: {
+    type: String, 
+    default: "", 
+    trim: true, 
+    maxlength: 300 
+  },
+  user: { 
+    type: Schema.ObjectId, 
+    ref: "User",
+    required: true
+  },
   tags: { 
     type: [String], 
     set: setTags
