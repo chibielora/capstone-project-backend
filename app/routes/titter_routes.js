@@ -5,6 +5,7 @@ const passport = require('passport')
 
 // pull in Mongoose model for titter
 const Post = require('../models/titter')
+const User = require('../models/user')
 
 const customErrors = require('../../lib/custom_errors')
 const handle404 = customErrors.handle404
@@ -14,7 +15,7 @@ const requireToken = passport.authenticate('bearer', { session: false })
 const router = express.Router()
 
 // INDEX OF POSTS
-router.get('/posts', requireToken, (req, res, next) => {
+router.get('/posts', (req, res, next) => {
   Post.find()
     .populate('user', 'username')
     .sort({ createdAt: -1})
@@ -63,23 +64,31 @@ router.get('/posts/following', requireToken, (req, res, next) => {
 })
 
 // SHOW USER BY ID
-router.get('/users/:id', requireToken, (req, res, next) => {
+router.get('/users/:id', (req, res, next) => {
   // req.params.id will be set based on the `:id` in the route
-  Post.find({'user.id': req.params.id})
+  User.findById(req.params.id)
     .then(handle404)
     // if `findById` is succesful, respond with 200 and "example" JSON
-    .then(post => res.status(200).json({
-      post: post.toObject()
+    .then(user => res.status(200).json({
+      user: user.toObject()
     }))
     // if an error occurs, pass it to the handler
     .catch(next)
 })
 
+router.get('/users/:userId/posts', (req, res, next) => {
+  Post.find({ user: req.params.userId })
+    .populate('user', 'username')
+    .then(handle404)
+    .then(posts => res.status(200).json({
+      posts: posts
+    }))
+})
+
 // CREATE
 // POST /examples
 router.post('/posts', requireToken, (req, res, next) => {
-  const message = req.body.post.message.trim()
-  console.log(message)
+  const message = req.body.post.message.trim().slice(0, 300)
   const newPost = new Post({
     body: message,
     user: req.user.id 
