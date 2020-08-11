@@ -14,7 +14,7 @@ const requireToken = passport.authenticate('bearer', { session: false })
 const router = express.Router()
 
 // INDEX OF POSTS
-router.get('/post', requireToken, (req, res, next) => {
+router.get('/posts', requireToken, (req, res, next) => {
   Post.find()
     .sort({ createdAt: -1})
     .then(posts => {
@@ -30,7 +30,7 @@ router.get('/post', requireToken, (req, res, next) => {
 })
 
 // SHOW POSTS BY ID
-router.get('/post/:id', requireToken, (req, res, next) => {
+router.get('/posts/:id', requireToken, (req, res, next) => {
   // req.params.id will be set based on the `:id` in the route
   Post.findById(req.params.id)
     .then(handle404)
@@ -42,7 +42,7 @@ router.get('/post/:id', requireToken, (req, res, next) => {
 
 
 // INDEX OF WHO USER IS FOLLOWING
-router.get('/following', requireToken, (req, res, next) => {
+router.get('/posts/following', requireToken, (req, res, next) => {
   Post.find({
     'user.id': { following: req.user.following}  //Come back to this later
   })
@@ -62,7 +62,7 @@ router.get('/following', requireToken, (req, res, next) => {
 })
 
 // SHOW USER BY ID
-router.get('/following/:userId', requireToken, (req, res, next) => {
+router.get('/users/:userId', requireToken, (req, res, next) => {
   // req.params.id will be set based on the `:id` in the route
   Post.find({'user.id': req.params.id})
     .then(handle404)
@@ -76,15 +76,11 @@ router.get('/following/:userId', requireToken, (req, res, next) => {
 
 // CREATE
 // POST /examples
-router.post('/post', requireToken, (req, res, next) => {
-  // set owner of new example to be current user
-  req.body.post.owner = req.user.id
-  const message = req.body.post.trim()
+router.post('/posts', requireToken, (req, res, next) => {
+  const message = req.body.post.message.trim()
   const newPost = new Post({
-    user : {
-      id: req.user.id,
-      login: req.user.login
-    }, message
+    body: message,
+    user: req.user.id 
   })
   newPost.save()
     // respond to succesful `create` with status 201 and JSON of new "example"
@@ -99,7 +95,7 @@ router.post('/post', requireToken, (req, res, next) => {
 
 // UPDATE
 // PATCH /examples/5a7db6c74d55bc51bdf39793
-router.patch('/post/:id', requireToken, removeBlanks, (req, res, next) => {
+router.patch('/posts/:id', requireToken, removeBlanks, (req, res, next) => {
   // if the client attempts to change the `owner` property by including a new
   // owner, prevent that by deleting that key/value pair
   delete req.body.post.owner
@@ -122,7 +118,7 @@ router.patch('/post/:id', requireToken, removeBlanks, (req, res, next) => {
 
 // DESTROY
 // DELETE /examples/5a7db6c74d55bc51bdf39793
-router.delete('/post/:id', requireToken, (req, res, next) => {
+router.delete('/posts/:id', requireToken, (req, res, next) => {
   Post.findById(req.params.id)
     .then(handle404)
     .then(post => {

@@ -25,7 +25,7 @@ router.post('/sign-up', (req, res, next) => {
     .then(credentials => {
       if (!credentials ||
           !credentials.password ||
-          credentials.password !== credentials.password_confirmation) {
+          credentials.password !== credentials.passwordConfirmation) {
         throw new BadParamsError()
       }
     })
@@ -34,7 +34,7 @@ router.post('/sign-up', (req, res, next) => {
     .then(hash => {
       // return necessary params to create a user
       return {
-        username: req.body.credentials.username,
+        username: req.body.credentials.email,
         email: req.body.credentials.email,
         hashedPassword: hash
       }
@@ -91,11 +91,11 @@ router.post('/sign-in', (req, res, next) => {
 // MAIN PAGE
 router.get('/', requireToken,(req, res, next) => {
   res.json({
-  _id: req.user._id,
-  email: req.user.email,
-  username: req.user.username,
-  followers: req.user.followers,
-  following: req.user.following
+    _id: req.user._id,
+    email: req.user.email,
+    username: req.user.username,
+    followers: req.user.followers,
+    following: req.user.following
   })
 })
 
@@ -149,18 +149,18 @@ router.patch('/change-password', requireToken, (req, res, next) => {
     // save user outside the promise chain
     .then(record => { user = record })
     // check that the old password is correct
-    .then(() => bcrypt.compare(req.body.passwords.old, user.hashedPassword))
+    .then(() => bcrypt.compare(req.body.passwords.oldPassword, user.hashedPassword))
     // `correctPassword` will be true if hashing the old password ends up the
     // same as `user.hashedPassword`
     .then(correctPassword => {
       // throw an error if the new password is missing, an empty string,
       // or the old password was wrong
-      if (!req.body.passwords.new || !correctPassword) {
+      if (!req.body.passwords.newPassword || !correctPassword) {
         throw new BadParamsError()
       }
     })
     // hash the new password
-    .then(() => bcrypt.hash(req.body.passwords.new, bcryptSaltRounds))
+    .then(() => bcrypt.hash(req.body.passwords.newPassword, bcryptSaltRounds))
     .then(hash => {
       // set and save the new hashed password in the DB
       user.hashedPassword = hash
