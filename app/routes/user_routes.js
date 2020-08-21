@@ -131,7 +131,7 @@ router.post('/unfollow', requireToken, (req, res, next) => {
 })
 
 // SEARCH USERS
-router.post('/search', (req, res, next) => {
+router.get('/search', (req, res, next) => {
 		User.findOne({ $or: [
       { email: req.body.text },
 			{ username: req.body.text } ]
