@@ -102,12 +102,12 @@ router.get('/', requireToken,(req, res, next) => {
 // FOLLOW
 router.post('/follow', requireToken, (req, res, next) => {
   User.findOneAndUpdate({ _id: req.user.id }, 
-  { push: { following: req.body.userId }},
+  { $push: { following: req.body.userId }},
   { new: true })
   .then(user => {
   User.findOneAndUpdate({ _id: req.body.userId
     }, {
-    push: { followers: req.user.id }
+    $push: { followers: req.user.id }
     }, { new: true})
     .then(user => res.json({ userId: req.body.userId }))
     .catch(next)
@@ -118,11 +118,11 @@ router.post('/follow', requireToken, (req, res, next) => {
 // UNFOLLOW
 router.post('/unfollow', requireToken, (req, res, next) => {
   User.findOneAndUpdate({ _id: req.user.id}, 
-    { pull: { following: req.body.userId } }, 
+    { $pull: { following: req.body.userId } }, 
     { new: true })
   .then(user => {
   User.findOneAndUpdate({ _id: req.body.userId }, 
-    { pull: { followers: req.user.id } }, 
+    { $pull: { followers: req.user.id } }, 
     { new: true })
     .then(user => res.json({ userId: req.body.userId }))
     .catch(next)
@@ -131,8 +131,8 @@ router.post('/unfollow', requireToken, (req, res, next) => {
 })
 
 // SEARCH USERS
-router.post('/search', requireToken, (req, res, next) => {
-		User.findOne({ or: [
+router.post('/search', (req, res, next) => {
+		User.findOne({ $or: [
       { email: req.body.text },
 			{ username: req.body.text } ]
 		})
