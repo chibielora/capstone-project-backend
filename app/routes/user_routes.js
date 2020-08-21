@@ -131,13 +131,13 @@ router.post('/unfollow', requireToken, (req, res, next) => {
 })
 
 // SEARCH USERS
-router.get('/search', (req, res, next) => {
-		User.findOne({ $or: [
-      { email: req.body.text },
-			{ username: req.body.text } ]
-		})
-		.then(user => res.json({ userId: user._id }))
-		.catch(next)
+router.post('/users/search', (req, res, next) => {
+  User.findOne({ $or: [
+    { email: req.body.text },
+    { username: req.body.text } ]
+  })
+  .then(user => res.json({ userId: user._id }))
+  .catch(next)
 })
     
 // CHANGE password
