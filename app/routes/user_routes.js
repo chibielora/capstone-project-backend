@@ -9,6 +9,8 @@ const bcrypt = require('bcrypt')
 // see above for explanation of "salting", 10 rounds is recommended
 const bcryptSaltRounds = 10
 const errors = require('../../lib/custom_errors')
+const customErrors = require('../../lib/custom_errors')
+const handle404 = customErrors.handle404
 const BadParamsError = errors.BadParamsError
 const BadCredentialsError = errors.BadCredentialsError
 const User = require('../models/user')
@@ -99,6 +101,29 @@ router.get('/', requireToken,(req, res, next) => {
   })
 })
 
+// SEARCH USERS
+router.post('/users/search', (req, res, next) => {
+  User.findOne({ $or: [
+    { email: req.body.text },
+    { username: req.body.text } ]
+  })
+  .then(user => res.json({ userId: user._id }))
+  .catch(next)
+})
+
+// SHOW USER BY ID
+router.get('/users/:id', (req, res, next) => {
+  // req.params.id will be set based on the `:id` in the route
+  User.findById(req.params.id)
+    .then(handle404)
+    // if `findById` is succesful, respond with 200 and "example" JSON
+    .then(user => res.status(200).json({
+      user: user.toObject()
+    }))
+    // if an error occurs, pass it to the handler
+    .catch(next)
+})
+
 // FOLLOW
 router.post('/users/:userId/follow', requireToken, (req, res, next) => {
   User.findOneAndUpdate({ _id: req.user.id }, 
@@ -130,15 +155,6 @@ router.post('/users/:userId/unfollow', requireToken, (req, res, next) => {
   .catch(next)
 })
 
-// SEARCH USERS
-router.post('/users/search', (req, res, next) => {
-  User.findOne({ $or: [
-    { email: req.body.text },
-    { username: req.body.text } ]
-  })
-  .then(user => res.json({ userId: user._id }))
-  .catch(next)
-})
     
 // CHANGE password
 // PATCH /change-password

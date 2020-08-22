@@ -31,46 +31,34 @@ router.get('/posts', (req, res, next) => {
     .catch(next)
 })
 
+// INDEX OF WHO USER IS FOLLOWING
+router.get('/posts/following', requireToken, (req, res, next) => {
+  Post.find({
+    user: { $in: req.user.following }
+  })
+    .populate('user', 'username')
+    .sort({ createdAt: -1 })
+    .then(posts => {
+      // `examples` will be an array of Mongoose documents
+      // we want to convert each one to a POJO, so we use `.map` to
+      // apply `.toObject` to each one
+      debugger
+      return posts.map(post => post.toObject())
+    })
+    // respond with status 200 and JSON of the examples
+    .then(posts => res.status(200).json({ posts: posts }))
+    // if an error occurs, pass it to the handler
+    .catch(next)
+})
+
 // SHOW POSTS BY ID
 router.get('/posts/:id', requireToken, (req, res, next) => {
   // req.params.id will be set based on the `:id` in the route
   Post.findById(req.params.id)
     .then(handle404)
     // if `findById` is succesful, respond with 200 and "example" JSON
-    .then(post => res.status(200).json({ post: post.toObject() }))
-    // if an error occurs, pass it to the handler
-    .catch(next)
-})
-
-
-// INDEX OF WHO USER IS FOLLOWING
-router.get('/posts/following', requireToken, (req, res, next) => {
-  Post.find({
-    'user.id': { following: req.user.following}  //Come back to this later
-  })
-    .sort({ createdAt: -1 })
-    .then(posts => {
-      // `examples` will be an array of Mongoose documents
-      // we want to convert each one to a POJO, so we use `.map` to
-      // apply `.toObject` to each one
-      return posts.map(post => post.toObject())
-    })
-    // respond with status 200 and JSON of the examples
-    .then(posts => res.status(200).json({
-      posts: posts
-    }))
-    // if an error occurs, pass it to the handler
-    .catch(next)
-})
-
-// SHOW USER BY ID
-router.get('/users/:id', (req, res, next) => {
-  // req.params.id will be set based on the `:id` in the route
-  User.findById(req.params.id)
-    .then(handle404)
-    // if `findById` is succesful, respond with 200 and "example" JSON
-    .then(user => res.status(200).json({
-      user: user.toObject()
+    .then(post => res.status(200).json({
+      post: post.toObject()
     }))
     // if an error occurs, pass it to the handler
     .catch(next)
