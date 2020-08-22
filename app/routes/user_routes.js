@@ -100,31 +100,31 @@ router.get('/', requireToken,(req, res, next) => {
 })
 
 // FOLLOW
-router.post('/follow', requireToken, (req, res, next) => {
+router.post('/users/:userId/follow', requireToken, (req, res, next) => {
   User.findOneAndUpdate({ _id: req.user.id }, 
-  { $push: { following: req.body.userId }},
-  { new: true })
+    { $addToSet: { following: req.params.userId }},
+    { new: true })
   .then(user => {
-  User.findOneAndUpdate({ _id: req.body.userId
-    }, {
-    $push: { followers: req.user.id }
-    }, { new: true})
-    .then(user => res.json({ userId: req.body.userId }))
+    User.findOneAndUpdate({ _id: req.params.userId
+      }, {
+      $addToSet: { followers: req.user.id }
+      }, { new: true})
+    .then(user => res.json({ userId: req.params.userId }))
     .catch(next)
   })
   .catch(next)
 })
 
 // UNFOLLOW
-router.post('/unfollow', requireToken, (req, res, next) => {
+router.post('/users/:userId/unfollow', requireToken, (req, res, next) => {
   User.findOneAndUpdate({ _id: req.user.id}, 
-    { $pull: { following: req.body.userId } }, 
+    { $pull: { following: req.params.userId } }, 
     { new: true })
   .then(user => {
-  User.findOneAndUpdate({ _id: req.body.userId }, 
+  User.findOneAndUpdate({ _id: req.params.userId }, 
     { $pull: { followers: req.user.id } }, 
     { new: true })
-    .then(user => res.json({ userId: req.body.userId }))
+    .then(user => res.json({ userId: req.params.userId }))
     .catch(next)
   })
   .catch(next)
